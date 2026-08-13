@@ -1,11 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
+
+#define MAX_INPUT_LEN 5
 
 typedef struct {
     int max;
     int guess_times;
 } difficulty;
+
+int is_number(char *input)
+{
+    int n = strlen(input);
+    for(int i = 0; i < n; i++) {
+        if (input[i] < '0' || input[i] > '9') { 
+            return 0;
+        }
+    }
+    return 1;
+}
 
 int main()
 {
@@ -17,6 +31,7 @@ int main()
     int choice;
     int target;
     int max_step;
+    char input[MAX_INPUT_LEN];
     while(1)
     {
         printf("===猜数字游戏===\n");
@@ -38,7 +53,12 @@ int main()
         int min = 1, max = d.max;
         while (step++ < max_step) {
             printf("第%d次猜测：", step);
-            scanf("%d", &guess);
+            scanf("%s", input);
+            if (!is_number(input)) {
+                printf("无效的输入，请重新输入\n");
+                continue;
+            }
+            guess = atoi(input);
             if (guess > target) 
             {
                 max = guess;
