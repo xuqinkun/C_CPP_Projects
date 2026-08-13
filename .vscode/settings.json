@@ -1,0 +1,5 @@
+{
+    "code-runner.executorMap": {
+        "c": "cd /d \"$workspaceRoot\" && if not exist \"build\" mkdir \"build\" && gcc \"$fullFileName\" -o \"build\\$fileNameWithoutExt.exe\" && \"build\\$fileNameWithoutExt.exe\""
+    }
+}
