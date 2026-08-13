@@ -2,25 +2,22 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "cppbuild",
             "label": "C/C++: gcc.exe build active file",
-            "command": "C:\\mingw64\\bin\\gcc.exe",
-            "args": [
-                "-fdiagnostics-color=always",
-                "-g",
-                "${file}",
-                "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
-            ],
+            "type": "shell",
+            "command": "mkdir build 2>nul & gcc -fdiagnostics-color=always -g ${fileBasename} -o build\\${fileBasenameNoExtension}.exe",
             "options": {
-                "cwd": "${fileDirname}"
+                "cwd": "${fileDirname}",
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/d", "/c"]
+                }
             },
             "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "编译器: C:\\mingw64\\bin\\gcc.exe"
+            "detail": "编译到 build 目录（相对路径，避免 C&CPP 中的 & 拆命令）"
         }
     ]
 }

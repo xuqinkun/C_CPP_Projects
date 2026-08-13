@@ -54,6 +54,23 @@ int main()
                 printf("🎉 恭喜你猜对了，答案是%d, 总共猜测次数：%d\n", target, step);
                 break;
             }
+            printf("剩余次数：%d\n", max_step - step);
+        }
+        char c;
+        while (1) {
+            printf("是否再来一局?(y/n)：");
+            scanf(" %c", &c);
+            if (c == 'y' || c == 'Y' 
+                || c == 'n' || c == 'N')
+            {
+                break;
+            } 
+            else {
+                printf("无效的输入，请重新输入\n");
+            }
+        }
+        if (c == 'n' || c == 'N') {
+            break;
         }
     }
     return 0;
