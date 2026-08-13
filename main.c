@@ -5,7 +5,28 @@
 int main()
 {
     srand(time(NULL));
-    int t = rand();
-    printf("%d\n", t);
+    int max = 100;
+    int target = rand() % max + 1;
+    int guess;
+    int step = 0;
+    while(1)
+    {
+        printf("请输入猜测的数字(1~%d)：", max);
+        scanf("%d", &guess);
+        step++;
+        if (guess > target) 
+        {
+            printf("太大了\n");
+        }
+        else if (guess < target) 
+        {
+            printf("太小了\n");
+        }
+        else
+        {
+            break;
+        }
+    }
+    printf("恭喜你猜对了，总共猜测次数：%d\n", step);
     return 0;
 }
