@@ -4,11 +4,19 @@
 #include <string.h>
 
 #define MAX_INPUT_LEN 5
+#define MAX_NAME_LEN 20
 
 typedef struct {
+    char desc[MAX_NAME_LEN];
     int max;
     int guess_times;
 } difficulty;
+
+typedef struct {
+    char name[MAX_NAME_LEN];
+    int score;
+    int diff;
+} record;
 
 int is_number(char *input)
 {
@@ -24,7 +32,7 @@ int is_number(char *input)
 int main()
 {
     srand(time(NULL));
-    difficulty diff[] = {{50, 10}, {100, 7}, {500, 5}};
+    difficulty diff[] = {{"简单", 50, 10}, {"中等", 100, 7}, {"困难", 500, 5}};
 
     int guess;
     int step;
@@ -32,6 +40,22 @@ int main()
     int target;
     int max_step;
     char input[MAX_INPUT_LEN];
+    char player[MAX_NAME_LEN];
+
+    record rec;
+    printf("请输入你的名字：");
+    scanf("%s", player);
+    FILE *fp = fopen("score.txt", "r");
+    if (fp == NULL) {
+        printf("文件打开失败\n");
+        return 1;
+    }
+    size_t items_read = fread(&rec, sizeof(record), 1, fp);
+    if (items_read) {
+        
+        printf("最高分：%s %d %s\n", rec.name, rec.score, diff[rec.diff].desc);
+    }
+    fclose(fp);
     while(1)
     {
         printf("===猜数字游戏===\n");
@@ -71,7 +95,16 @@ int main()
             }
             else
             {
-                printf("🎉 恭喜你猜对了，答案是%d, 总共猜测次数：%d\n", target, step);
+                fp = fopen("score.txt", "w");
+                int score = (max_step - step) * choice * 100;
+                printf("🎉 恭喜你猜对了，答案是%d, 总共猜测次数：%d 得分：%d\n", target, step, score);
+                if (items_read && score > rec.score || items_read == 0) {
+                    strcpy(rec.name, player);
+                    rec.score = score;
+                    rec.diff = choice; 
+                    fwrite(&rec, sizeof(record), 1, fp);
+                }
+                fclose(fp);
                 break;
             }
             printf("剩余次数：%d\n", max_step - step);
