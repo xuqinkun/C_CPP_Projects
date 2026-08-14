@@ -44,7 +44,7 @@ int main()
 
     record rec;
     printf("请输入你的名字：");
-    scanf("%s", player);
+    scanf("%19s", player);
     FILE *fp = fopen("score.txt", "r");
     if (fp == NULL) {
         printf("文件打开失败\n");
@@ -52,8 +52,7 @@ int main()
     }
     size_t items_read = fread(&rec, sizeof(record), 1, fp);
     if (items_read) {
-        
-        printf("最高分：%s %d %s\n", rec.name, rec.score, diff[rec.diff].desc);
+        printf("最高分：%s %d %s\n", rec.name, rec.score, diff[rec.diff - 1].desc);
     }
     fclose(fp);
     while(1)
@@ -63,7 +62,7 @@ int main()
         printf("2. 中等(1~100)\n");
         printf("3. 困难(1~500)\n");
         printf("请选择难度(1~3)：");
-        scanf("%d", &choice);
+        scanf("%4d", &choice);
         if (choice < 1 || choice > 3)
         {
             printf("无效的输入，请重新输入\n");
@@ -75,33 +74,34 @@ int main()
         printf("目标数字已生成（1~%d），你有%d次机会\n", d.max, max_step);
         step = 0;
         int min = 1, max = d.max;
-        while (step++ < max_step) {
+        while (step < max_step) {
             printf("第%d次猜测：", step);
             scanf("%s", input);
             if (!is_number(input)) {
                 printf("无效的输入，请重新输入\n");
                 continue;
             }
+            step++;
             guess = atoi(input);
             if (guess > target) 
             {
-                max = guess;
+                max = guess - 1;
                 printf("→太大了，范围缩小到%d~%d\n", min, max);
             }
             else if (guess < target) 
             {
-                min = guess;
+                min = guess + 1;
                 printf("太小了，范围缩小到%d~%d\n", min, max);
             }
             else
             {
-                fp = fopen("score.txt", "w");
                 int score = (max_step - step) * choice * 100;
                 printf("🎉 恭喜你猜对了，答案是%d, 总共猜测次数：%d 得分：%d\n", target, step, score);
-                if (items_read && score > rec.score || items_read == 0) {
+                if ((items_read && score > rec.score) || items_read == 0) {
                     strcpy(rec.name, player);
                     rec.score = score;
                     rec.diff = choice; 
+                    fp = fopen("score.txt", "w");
                     fwrite(&rec, sizeof(record), 1, fp);
                 }
                 fclose(fp);
