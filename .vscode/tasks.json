@@ -4,7 +4,7 @@
         {
             "label": "C/C++: gcc.exe build active file",
             "type": "shell",
-            "command": "mkdir build 2>nul & gcc -fdiagnostics-color=always -g ${fileBasename} -o build\\${fileBasenameNoExtension}.exe",
+            "command": "mkdir build 2>nul & gcc -fdiagnostics-color=always -g -O0 -fdebug-prefix-map=/cygdrive/d=D: -fdebug-prefix-map=/cygdrive/D=D: ${fileBasename} -o build\\${fileBasenameNoExtension}.exe",
             "options": {
                 "cwd": "${fileDirname}",
                 "shell": {

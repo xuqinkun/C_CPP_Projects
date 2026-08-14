@@ -9,7 +9,11 @@
             "args": [],
             "cwd": "${fileDirname}",
             "terminal": "integrated",
-            "preLaunchTask": "C/C++: gcc.exe build active file"
+            "preLaunchTask": "C/C++: gcc.exe build active file",
+            "sourceMap": {
+                "/cygdrive/d": "D:/",
+                "/cygdrive/D": "D:/"
+            }
         }
     ]
 }
