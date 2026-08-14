@@ -9,6 +9,13 @@
 #define SCORE_FILE "score.txt"
 #define DIFF_COUNT 3
 
+#define RESET  "\033[0m"
+#define BOLD   "\033[1m"
+#define RED    "\033[31m"
+#define GREEN  "\033[32m"
+#define YELLOW "\033[33m"
+#define CYAN   "\033[36m"
+
 typedef struct {
     char desc[MAX_NAME_LEN];
     int max;
@@ -67,7 +74,7 @@ static int save_record(const record *rec)
 {
     FILE *fp = fopen(SCORE_FILE, "w");
     if (fp == NULL) {
-        printf("保存最高分失败\n");
+        printf(RED "保存最高分失败" RESET "\n");
         return 0;
     }
     fprintf(fp, "%s %d %d\n", rec->name, rec->score, rec->diff);
@@ -99,20 +106,21 @@ int main(void)
     char player[MAX_NAME_LEN];
     printf("请输入你的名字：");
     if (!read_token(player, MAX_NAME_LEN)) {
-        printf("读取名字失败\n");
+        printf(RED "读取名字失败" RESET "\n");
         return 1;
     }
 
     record rec = {0};
     int has_record = load_record(&rec);
     if (has_record) {
-        printf("最高分：%s %d %s\n", rec.name, rec.score, diff[rec.diff - 1].desc);
+        printf(CYAN "最高分：%s %d %s" RESET "\n",
+               rec.name, rec.score, diff[rec.diff - 1].desc);
     } else {
-        printf("暂无最高分记录\n");
+        printf(YELLOW "暂无最高分记录" RESET "\n");
     }
 
     while (1) {
-        printf("===猜数字游戏===\n");
+        printf(BOLD CYAN "===猜数字游戏===" RESET "\n");
         printf("1. 简单(1~50)\n");
         printf("2. 中等(1~100)\n");
         printf("3. 困难(1~500)\n");
@@ -120,12 +128,12 @@ int main(void)
 
         char input[MAX_INPUT_LEN];
         if (!read_token(input, MAX_INPUT_LEN) || !is_number(input)) {
-            printf("无效的输入，请重新输入\n");
+            printf(YELLOW "无效的输入，请重新输入" RESET "\n");
             continue;
         }
         int choice = atoi(input);
         if (choice < 1 || choice > DIFF_COUNT) {
-            printf("无效的输入，请重新输入\n");
+            printf(YELLOW "无效的输入，请重新输入" RESET "\n");
             continue;
         }
 
@@ -135,23 +143,23 @@ int main(void)
         printf("2. 计时模式（限时%d秒）\n", d.time_limit);
         printf("请选择模式(1~2)：");
         if (!read_token(input, MAX_INPUT_LEN) || !is_number(input)) {
-            printf("无效的输入，请重新输入\n");
+            printf(YELLOW "无效的输入，请重新输入" RESET "\n");
             continue;
         }
         int mode = atoi(input);
         if (mode != 1 && mode != 2) {
-            printf("无效的输入，请重新输入\n");
+            printf(YELLOW "无效的输入，请重新输入" RESET "\n");
             continue;
         }
         int timed = (mode == 2);
 
         int max_step = d.guess_times;
         int target = rand() % d.max + 1;
-        printf("目标数字已生成（1~%d），你有%d次机会", d.max, max_step);
+        printf(CYAN "目标数字已生成（1~%d），你有%d次机会", d.max, max_step);
         if (timed) {
             printf("，限时%d秒", d.time_limit);
         }
-        printf("\n");
+        printf(RESET "\n");
 
         int step = 0;
         int min = 1;
@@ -166,8 +174,10 @@ int main(void)
                 break;
             }
             if (timed) {
-                printf("第%d次猜测（剩余%.1f秒）：",
-                       step + 1, d.time_limit - elapsed_sec(start));
+                double remain = d.time_limit - elapsed_sec(start);
+                const char *tc = remain <= 10 ? RED : CYAN;
+                printf("第%d次猜测（剩余%s%.1f秒" RESET "）：",
+                       step + 1, tc, remain);
             } else {
                 printf("第%d次猜测：", step + 1);
             }
@@ -176,7 +186,7 @@ int main(void)
                     timeout = 1;
                     break;
                 }
-                printf("无效的输入，请重新输入\n");
+                printf(YELLOW "无效的输入，请重新输入" RESET "\n");
                 continue;
             }
             if (timed && timed_out(start, d.time_limit)) {
@@ -185,25 +195,25 @@ int main(void)
             }
             int guess = atoi(input);
             if (guess < min || guess > max) {
-                printf("请输入 %d~%d 之间的数字\n", min, max);
+                printf(YELLOW "请输入 %d~%d 之间的数字" RESET "\n", min, max);
                 continue;
             }
 
             step++;
             if (guess > target) {
                 max = guess - 1;
-                printf("→太大了，范围缩小到%d~%d\n", min, max);
+                printf(RED "→太大了" RESET "，范围缩小到%d~%d\n", min, max);
             } else if (guess < target) {
                 min = guess + 1;
-                printf("太小了，范围缩小到%d~%d\n", min, max);
+                printf(YELLOW "太小了" RESET "，范围缩小到%d~%d\n", min, max);
             } else {
                 int score = (max_step - step + 1) * choice * 100;
-                printf("🎉 恭喜你猜对了，答案是%d, 总共猜测次数：%d 得分：%d",
+                printf(GREEN "🎉 恭喜你猜对了，答案是%d, 总共猜测次数：%d 得分：%d",
                        target, step, score);
                 if (timed) {
                     printf("，耗时%.1f秒", elapsed_sec(start));
                 }
-                printf("\n");
+                printf(RESET "\n");
                 if (!has_record || score > rec.score) {
                     snprintf(rec.name, sizeof rec.name, "%s", player);
                     rec.score = score;
@@ -215,28 +225,29 @@ int main(void)
                 won = 1;
                 break;
             }
-            printf("剩余次数：%d\n", max_step - step);
+            int left = max_step - step;
+            printf("剩余次数：%s%d" RESET "\n", left <= 2 ? RED : RESET, left);
         }
 
         if (timeout) {
-            printf("时间到！本局耗时%.1f秒，正确答案是%d\n",
+            printf(RED "时间到！本局耗时%.1f秒，正确答案是%d" RESET "\n",
                    elapsed_sec(start), target);
         } else if (!won) {
-            printf("次数用尽，正确答案是%d\n", target);
+            printf(RED "次数用尽，正确答案是%d" RESET "\n", target);
         }
 
         char c;
         while (1) {
             printf("是否再来一局?(y/n)：");
             if (scanf(" %c", &c) != 1) {
-                printf("读取输入失败\n");
+                printf(RED "读取输入失败" RESET "\n");
                 return 1;
             }
             clear_line();
             if (c == 'y' || c == 'Y' || c == 'n' || c == 'N') {
                 break;
             }
-            printf("无效的输入，请重新输入\n");
+            printf(YELLOW "无效的输入，请重新输入" RESET "\n");
         }
         if (c == 'n' || c == 'N') {
             break;
